@@ -91,6 +91,7 @@ New-Item -ItemType Directory -Force -Path $tmp | Out-Null
 & tar.exe -xzf $zipPath -C $tmp
 if ($LASTEXITCODE -ne 0) { throw "Extraction failed." }
 Copy-Item (Join-Path $tmp 'fast-note-sync-service.exe') (Join-Path $InstallDir 'fast-note-sync-service.exe') -Force
+Unblock-File (Join-Path $InstallDir 'fast-note-sync-service.exe') -ErrorAction SilentlyContinue
 $templateConfig = Join-Path $tmp 'config\config.yaml'
 if (-not (Test-Path $templateConfig)) { throw "config.yaml not found in the release archive." }
 
