@@ -1,0 +1,25 @@
+# Fast Note Sync Service - portable Docker deployment
+#
+#   docker compose up -d
+#
+# Data lives in ./storage and ./config next to this file (easy to back up / move).
+# Set FNS_PORT in a .env file to change the port (default 9000).
+services:
+  fast-note-sync-service:
+    image: haierkeys/fast-note-sync-service:3.6.1
+    container_name: fast-note-sync-service
+    restart: unless-stopped
+    ports:
+      # LAN / Tailscale direct: use "${FNS_PORT:-9000}:9000"
+      # Behind Caddy/Nginx:   "127.0.0.1:${FNS_PORT:-9000}:9000"
+      - "${FNS_BIND:-0.0.0.0}:${FNS_PORT:-9000}:9000"
+    volumes:
+      - ./storage:/fast-note-sync/storage
+      - ./config:/fast-note-sync/config
+    environment:
+      - TZ=Asia/Shanghai
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

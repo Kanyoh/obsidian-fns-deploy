@@ -1,0 +1,12 @@
+# runtime data (never commit)
+config/config.yaml
+storage/
+backups/
+logs/
+fns.pid
+
+# local
+*.log
+.env
+.DS_Store
+Thumbs.db

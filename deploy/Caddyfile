@@ -1,0 +1,19 @@
+# Caddy 反向代理示例（自动申请 HTTPS 证书，自动支持 WebSocket）
+# 把 notes.example.com 换成你自己的域名，并把 DNS A/AAAA 指向服务器。
+# 运行：caddy run --config Caddyfile   （或用 systemd 安装 caddy 服务）
+
+notes.example.com {
+	encode zstd gzip
+
+	# 附件上传可能较大，按需调整
+	request_body {
+		max_size 200MB
+	}
+
+	reverse_proxy 127.0.0.1:9000 {
+		# 让后端拿到真实客户端 IP（配合 config.yaml 的 trusted-proxies）
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}
