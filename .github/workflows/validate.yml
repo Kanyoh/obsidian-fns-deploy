@@ -1,0 +1,57 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  scripts:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse PowerShell scripts
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem scripts -Recurse -Filter *.ps1 | ForEach-Object {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) {
+              $failed = $true
+              $errors | ForEach-Object {
+                Write-Host "ERROR $($_.Extent.File):$($_.Extent.StartLineNumber): $($_.Message)"
+              }
+            } else {
+              Write-Host "OK $($_.Name)"
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: bash syntax check
+        shell: bash
+        run: bash -n scripts/linux/install.sh
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check relative markdown links
+        shell: bash
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            while IFS= read -r link; do
+              target=$(echo "$link" | sed -E 's/.*\]\(([^)#]+).*/\1/')
+              case "$target" in
+                http*|mailto:*|'') continue ;;
+              esac
+              base=$(dirname "$f")
+              if [ ! -e "$base/$target" ]; then
+                echo "BROKEN LINK in $f -> $target"
+                fail=1
+              fi
+            done < <(grep -oE '\[[^]]+\]\([^)]+\)' "$f" || true)
+          done < <(find . -name '*.md' -not -path './.git/*')
+          exit $fail

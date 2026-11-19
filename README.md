@@ -1,5 +1,10 @@
 # Obsidian 多端同步 · 便携部署套件（Fast Note Sync）
 
+[![validate](https://github.com/Kanyoh/obsidian-fns-deploy/actions/workflows/validate.yml/badge.svg)](https://github.com/Kanyoh/obsidian-fns-deploy/actions/workflows/validate.yml)
+
+> 只想快速上手？看 **一页纸操作卡**：[`docs/00-quick-card.md`](docs/00-quick-card.md)
+> （公司电脑 + Tailscale，10 分钟全流程）
+
 一套**在任意 Windows 电脑上 5 分钟跑起来**的 Obsidian 同步服务端部署脚本 + 文档。
 
 适用场景：
